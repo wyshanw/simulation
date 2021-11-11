@@ -99,26 +99,40 @@ for (i in 1:4) {
 }
 ```
 
+combine:
+
 ``` r
 sim_results = 
   tibble(sample_size = c(30, 60, 120, 240)) %>% 
   mutate(
-    output_lists = map(.x = sample_size, ~rerun(1000, sim_mean_sd(n = .x))),
+    output_lists = map(.x = sample_size, ~rerun(100, sim_mean_sd(n = .x))),
     estimate_dfs = map(output_lists, bind_rows)) %>% 
   select(-output_lists) %>% 
-  unnest(estimate_dfs)
+  unnest(estimate_dfs) # expend
 ```
+
+## do some dataframe
 
 ``` r
 sim_results %>% 
   mutate(
     sample_size = str_c("n = ", sample_size),
-    sample_size = fct_inorder(sample_size)) %>% 
+    sample_size = fct_inorder(sample_size)) %>% # n in the right order
   ggplot(aes(x = sample_size, y = mu_hat, fill = sample_size)) + 
   geom_violin()
 ```
 
 ![](simulation_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+sim_results %>% 
+  group_by(sample_size) %>% 
+  summarize(
+    avg_samp_mean = mean(estimate), # estimate is "mean" in lecture
+    sd_samp_mean = sd(estimate)
+    
+  )
+```
 
 ``` r
 sim_results %>% 
@@ -137,11 +151,11 @@ sim_results %>%
 
 | parameter  | sample\_size | emp\_mean | emp\_var |
 |:-----------|-------------:|----------:|---------:|
-| mu\_hat    |           30 |     1.996 |    0.291 |
-| mu\_hat    |           60 |     2.011 |    0.149 |
-| mu\_hat    |          120 |     1.990 |    0.079 |
-| mu\_hat    |          240 |     2.002 |    0.039 |
-| sigma\_hat |           30 |     2.972 |    0.144 |
-| sigma\_hat |           60 |     2.998 |    0.077 |
-| sigma\_hat |          120 |     2.989 |    0.038 |
-| sigma\_hat |          240 |     2.993 |    0.019 |
+| mu\_hat    |           30 |     1.969 |    0.354 |
+| mu\_hat    |           60 |     1.979 |    0.143 |
+| mu\_hat    |          120 |     1.982 |    0.071 |
+| mu\_hat    |          240 |     2.014 |    0.027 |
+| sigma\_hat |           30 |     3.001 |    0.157 |
+| sigma\_hat |           60 |     2.952 |    0.053 |
+| sigma\_hat |          120 |     2.975 |    0.032 |
+| sigma\_hat |          240 |     3.018 |    0.014 |
